@@ -3,8 +3,6 @@
 require 'pp'
 require_relative '../command'
 require 'aws-sdk-ecs'
-require 'tty-prompt'
-require 'pastel'
 require 'ecsecute/errors'
 module Ecsecute
   module Commands
@@ -12,7 +10,6 @@ module Ecsecute
       attr_reader :region
 
       def initialize(i, options)
-        @pastel = Pastel.new
         @region = options['region'] || 'us-east-1'
         @client = Aws::ECS::Client.new(
           region: region,
@@ -28,29 +25,28 @@ module Ecsecute
       end
 
       def tasks
-        @client.list_tasks(cluster: cluster).task_arns.map { |task| task.gsub(%r{.*/}, '') }
+        return_matching(@client.list_tasks(cluster: cluster).task_arns.map { |task| task.gsub(%r{.*/}, '') }, @options["task"])
       end
 
       def task
         return @task unless @task.nil?
         return tasks.first if tasks.count == 1
 
-        prompt = TTY::Prompt.new(symbol: { marker: '>' })
         @task = prompt.select('Select task', tasks)
       end
 
       def containers
-        @containers ||= @client.describe_tasks(cluster: cluster,
+        all_containers ||= @client.describe_tasks(cluster: cluster,
                                                tasks: [task]) \
                                                .tasks.map(&:containers) \
                                                .flatten.map(&:name)
+        @containers = return_matching(all_containers, @options["container"])
       end
 
       def container
         return @container unless @container.nil?
         return containers.first if containers.count == 1
 
-        prompt = TTY::Prompt.new(symbol: { marker: '>' })
         @container = prompt.select('Select container', containers)
       end
 
@@ -61,19 +57,13 @@ module Ecsecute
         active_clusters = @client.describe_clusters(clusters: raw_clusters).clusters.select do |cluster|
           cluster.status == 'ACTIVE'
         end
-        matching_clusters = active_clusters.map(&:cluster_name).select do |cluster|
-          cluster.match(/#{@options["cluster"]}/)
-        end
-        @clusters = matching_clusters.select do |cluster|
-          @client.describe_clusters(clusters: [cluster]).clusters.first.status == 'ACTIVE'
-        end
+        @clusters = return_matching(active_clusters.map(&:cluster_name), @options["cluster"])
       end
 
       def cluster
         return @cluster unless @cluster.nil?
         return clusters.first if clusters.count == 1
-
-        prompt = TTY::Prompt.new(symbol: { marker: '>' })
+        
         @cluster = prompt.select('Select cluster', clusters)
       end
 
@@ -81,10 +71,10 @@ module Ecsecute
         validate!
         # TODO: Run ECS command via API rather than shelling out.
         output.puts "Executing " \
-          + "#{@pastel.green(@command)} " \
+          + "#{pastel.green(@command)} " \
           + "on cluster: #{@pastel.green(cluster)}, " \
-          + "task: #{@pastel.green(task)}, " \
-          + "container: #{@pastel.green(container)}"
+          + "task: #{pastel.green(task)}, " \
+          + "container: #{pastel.green(container)}"
         Kernel.exec "aws ecs execute-command  --region us-east-1 --cluster #{cluster} --task #{task}  --container #{container} --command #{@command} #{interactive}"
       end
 
@@ -93,7 +83,10 @@ module Ecsecute
         raise EcsecuteErrors::TaskNotFound if tasks.empty?
         raise EcsecuteErrors::ContainerNotFound if containers.empty?
       end
-      
+      private
+      def return_matching(list, keyword)
+        list.select { |item| item.match(/#{keyword}/i) }
+      end
     end
   end
 end

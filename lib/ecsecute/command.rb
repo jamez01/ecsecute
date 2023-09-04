@@ -58,6 +58,11 @@ module Ecsecute
       TTY::File
     end
 
+    def pastel
+      require 'pastel' 
+      @pastel ||= Pastel.new
+    end
+    
     # Terminal output paging
     #
     # @see http://www.rubydoc.info/gems/tty-pager
