@@ -6,23 +6,45 @@ TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'ecsecute'
+```bash
+gem install ecsecute
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install ecsecute
 
 ## Usage
 
-TODO: Write usage instructions here
+To use Ecsecute, you can run the following command to execute a command on an ECS task:
+
+```sh
+ecsecute exec -c <cluster_name> -t <task_id> -C <container_name> -i <command>
+```
+
+For example:
+
+```sh
+ecsecute exec -c my-cluster -t abcdef1234567890 -C my-container -i "ls -la"
+```
+
+Not all options are needed.  Each provided option can be a partial match.
+
+e.g.
+
+```sh
+ecsecute exec -c web "ls -la"
+```
+ecsecute will help you search for the proper container and task.
+
+Output:
+```sh
+Select cluster (Use ↑/↓ arrow keys, press Enter to select)
+‣ staging-web
+  production-web
+Select task 
+  qs7k8hudxifc60n1suvb0h6uhy3h04i0
+‣ srgifyq315kyq3eh107kxp0h1xd0ajt4
+Select container (Use ↑/↓ arrow keys, press Enter to select)
+‣ staging-web
+  staging-web-nginx-sidecar
+```
 
 ## Development
 
@@ -32,11 +54,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ecsecute. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
-## Code of Conduct
-
-Everyone interacting in the Ecsecute project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/ecsecute/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/jamez01/ecsecute. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## Copyright
 
