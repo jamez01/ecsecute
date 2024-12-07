@@ -1,8 +1,8 @@
 # Ecsecute
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ecsecute`. To experiment with that code, run `bin/console` for an interactive prompt.
+Execute commands directly on your AWS ECS tasks.
 
-TODO: Delete this and the text above, and describe your gem
+Use AWS tools to interactively find, connect to, and run commands directly on your running AWS ECS tasks.
 
 ## Installation
 
