@@ -1,16 +1,21 @@
-RSpec.describe "`ecsecute run` command", type: :cli do
-  it "executes `ecsecute help run` command successfully" do
-    output = `ecsecute help run`
-    expected_output = <<-OUT
-Usage:
-  ecsecute run I
+require 'ecsecute/cli'
 
-Options:
-  -h, [--help], [--no-help]  # Display usage information
+RSpec.describe Ecsecute::CLI do
+  describe '#version' do
+    it 'prints the version' do
+      cli = Ecsecute::CLI.new
+      expect { cli.version }.to output("v#{Ecsecute::VERSION}\n").to_stdout
+    end
+  end
 
-Run command on a ecs task
-    OUT
+  describe '#exec' do
+    it 'invokes the exec command' do
+      cli = Ecsecute::CLI.new
+      allow(cli).to receive(:options).and_return({})
+      allow(Ecsecute::Commands::Exec).to receive(:new).and_return(double(execute: true))
 
-    expect(output).to eq(expected_output)
+      expect(Ecsecute::Commands::Exec).to receive(:new).with(true, {})
+      cli.exec
+    end
   end
 end
