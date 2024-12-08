@@ -4,7 +4,7 @@ require 'pp'
 require_relative '../command'
 require 'aws-sdk-ecs'
 require 'ecsecute/errors'
-require 'websocket-client-simple'
+require 'ecsecute/ssm'
 
 module Ecsecute
   module Commands
@@ -85,38 +85,7 @@ module Ecsecute
           + "task: #{pastel.green(task)}, " \
           + "container: #{pastel.green(container)}"
         output.puts "Stream URL: #{stream}"
-
-        ws = WebSocket::Client::Simple.connect stream
-
-        ws.on :message do |msg|
-          output.puts msg.data
-        end
-
-        ws.on :open do
-          output.puts "Connected to the stream"
-          login_payload = {
-            "MessageSchemaVersion" => "1.0",
-            "RequestId" => SecureRandom.uuid,
-            "TokenValue" => token
-          }.to_json
-          ws.send login_payload
-        end
-
-        ws.on :close do |e|
-          output.puts "Connection closed: #{e}"
-        end
-
-        ws.on :error do |e|
-          output.puts "Error: #{e}"
-        end
-
-        loop do
-          input_data = input.gets
-          break if input_data.nil? || input_data.chomp == 'exit'
-          ws.send input_data
-        end
-
-        ws.close
+        @ssm_sesion = SSM.new(region: region, interactive: @interactive, token: token, stream_url: stream)
       end
 
       def execute(input: $stdin, output: $stdout)
