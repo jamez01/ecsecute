@@ -29,7 +29,7 @@ module Ecsecute
         invoke :help, ['exec']
       else
         require_relative 'commands/exec'
-        Ecsecute::Commands::Exec.new(i, options).execute
+        Ecsecute::Commands::Exec.new(i, options).execute_api
       end
     end
   end
