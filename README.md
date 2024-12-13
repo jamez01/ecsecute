@@ -6,6 +6,13 @@ Use AWS tools to interactively find, connect to, and run commands directly on yo
 
 ## Installation
 
+### Prerequisites
+* [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) (>= 1.16.12)
+* [Session Manager Plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html)
+* Ruby (>= 2.7.7)
+
+### Gem installation
+
 ```bash
 gem install ecsecute
 ```
